@@ -1,13 +1,30 @@
-import {Schema, model} from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
-const LeaveSchema = new Schema({
-    employeeId: {type: String, required: true},
-    leaveType: {type: String, enum: ['Paid', 'Sick', 'Unpaid'], required: true},
-    startDate: {type: String, required: true},
-    endDate: {type: String, required: true},
-    remarks: {type: String},
-    status: {type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending', required: true},
-    adminComments: {type: String, default: ''}
-}, {timestamps: true});
+export interface ILeave extends Document {
+    employeeId: string;
+    leaveType: 'Casual' | 'Sick' | 'Maternity' | 'Paternity' | 'Unpaid';
+    startDate: string; // Format: YYYY-MM-DD
+    endDate: string;   // Format: YYYY-MM-DD
+    reason: string;
+    status: 'Pending' | 'Approved' | 'Rejected';
+    appliedAt: Date;
+}
 
-export const Leave = model('Leave', LeaveSchema);
+const LeaveSchema = new Schema<ILeave>({
+    employeeId: { type: String, required: true },
+    leaveType: { 
+        type: String, 
+        enum: ['Casual', 'Sick', 'Maternity', 'Paternity', 'Unpaid'], 
+        required: true 
+    },
+    startDate: { type: String, required: true },
+    endDate: { type: String, required: true },
+    reason: { type: String, required: true },
+    status: { 
+        type: String, 
+        enum: ['Pending', 'Approved', 'Rejected'], 
+        default: 'Pending' 
+    }
+}, { timestamps: true });
+
+export const Leave = model<ILeave>('Leave', LeaveSchema);

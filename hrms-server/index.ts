@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
 import attendanceRoutes from './routes/Attendance.js';
+import leaveRoutes from './routes/leave.js';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ connectDB();
 // 2. Mount Routers
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/leave', leaveRoutes);
 
 // 3. Health Routes
 app.get('/api/health', (req, res) => {
