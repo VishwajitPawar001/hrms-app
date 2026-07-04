@@ -3,8 +3,8 @@ import { Schema, model, Document } from 'mongoose';
 export interface ILeave extends Document {
     employeeId: string;
     leaveType: 'Casual' | 'Sick' | 'Maternity' | 'Paternity' | 'Unpaid';
-    startDate: string; // Format: YYYY-MM-DD
-    endDate: string;   // Format: YYYY-MM-DD
+    startDate: string; 
+    endDate: string;   
     reason: string;
     status: 'Pending' | 'Approved' | 'Rejected';
     appliedAt: Date;

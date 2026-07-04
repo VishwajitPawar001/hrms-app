@@ -1,6 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
 
-// Define the interface for TypeScript validation
 export interface IAttendance extends Document {
     employeeId: string;
     date: string;

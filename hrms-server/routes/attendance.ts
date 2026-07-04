@@ -89,4 +89,29 @@ router.get('/admin/today', authenticateToken, async (req: AuthRequest, res: any)
     }
 });
 
+router.get('/today-status', authenticateToken, async (req: AuthRequest, res: any) => {
+    try {
+        const { employeeId } = req.user!;
+        
+        const latestRecord = await Attendance.findOne({ employeeId } as any).sort({ date: -1 });
+
+        if (!latestRecord) {
+            return res.status(200).json({ isCheckedIn: false, isShiftCompleted: false });
+        }
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        if (latestRecord.date === todayStr) {
+            if (latestRecord.checkOutTime) {
+                return res.status(200).json({ isCheckedIn: false, isShiftCompleted: true });
+            }
+            return res.status(200).json({ isCheckedIn: true, isShiftCompleted: false });
+        }
+
+        return res.status(200).json({ isCheckedIn: false, isShiftCompleted: false });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error syncing shift session state." });
+    }
+});
+
 export default router;

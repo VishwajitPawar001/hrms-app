@@ -5,7 +5,6 @@ import { User } from '../models/User.js';
 
 const router = Router();
 
-// SIGN UP ENDPOINT
 router.post('/signup', async (req: any, res: any) => {
   try {
     const { employeeId, name, email, password, role, phone, address } = req.body;
@@ -14,7 +13,6 @@ router.post('/signup', async (req: any, res: any) => {
       return res.status(400).json({ error: 'All fields are mandatory.' });
     }
 
-    // Explicitly cast filter query to bypass strict Mongoose TypeScript checking
     const existingUser = await User.findOne({ $or: [{ email }, { employeeId }] } as any);
     if (existingUser) {
       return res.status(400).json({ error: 'Employee ID or Email already registered.' });
@@ -40,7 +38,6 @@ router.post('/signup', async (req: any, res: any) => {
   }
 });
 
-// SIGN IN ENDPOINT
 router.post('/signin', async (req: any, res: any) => {
   try {
     const { email, password } = req.body;
@@ -49,7 +46,6 @@ router.post('/signin', async (req: any, res: any) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    // Explicitly cast filter query to bypass strict checking
     const user = await User.findOne({ email } as any);
     if (!user) {
       return res.status(400).json({ error: 'Invalid email or password credentials.' });
@@ -60,7 +56,6 @@ router.post('/signin', async (req: any, res: any) => {
       return res.status(400).json({ error: 'Invalid email or password credentials.' });
     }
 
-    // Pull directly from process.env with a strict fallback to ensure safe compilation
     const secretKey = process.env.JWT_SECRET || 'fallback_secret_key';
 
     const token = jwt.sign(

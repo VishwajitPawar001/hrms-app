@@ -4,8 +4,8 @@ import API from '../api/axiosInstance';
 interface AttendanceRecord {
   _id: string;
   date: string;
-  checkInTime: string;    // Aligned to match backend schema key
-  checkOutTime?: string;  // Aligned to match backend schema key
+  checkInTime: string;    
+  checkOutTime?: string;  
   status: string;
 }
 
@@ -40,8 +40,8 @@ export const AttendanceHistory: React.FC = () => {
   return (
     <div className="bg-bg-card border border-zinc-900 rounded-xl p-8 space-y-4 shadow-lg animate-slide-up">
       <div>
-        <h3 className="text-lg tracking-wide text-brand-accent font-medium">SHIFT HISTORY TIMELINE</h3>
-        <p className="text-xs font-sans text-zinc-500 font-serif italic">Review your historical operational workspace metrics.</p>
+        <h3 className="text-lg tracking-wide text-brand-accent font-medium">Attendance History</h3>
+        <p className="text-xs font-sans text-zinc-500 font-serif italic">View your past shift logs..</p>
       </div>
 
       {history.length === 0 ? (

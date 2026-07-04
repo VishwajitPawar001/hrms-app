@@ -4,7 +4,6 @@ import { authenticateToken, type AuthRequest } from '../middlewares/authMiddlewa
 
 const router = Router();
 
-// 1. APPLY FOR LEAVE (Any Logged-in Employee)
 router.post('/apply', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
         const { employeeId } = req.user!;
@@ -31,7 +30,6 @@ router.post('/apply', authenticateToken, async (req: AuthRequest, res: any) => {
     }
 });
 
-// 2. GET PERSONAL LEAVE HISTORY (Any Logged-in Employee)
 router.get('/my-leaves', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
         const { employeeId } = req.user!;
@@ -42,10 +40,8 @@ router.get('/my-leaves', authenticateToken, async (req: AuthRequest, res: any) =
     }
 });
 
-// 3. GET ALL LEAVE APPLICATIONS (HR Only)
 router.get('/admin/all', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
-        // Simple security layer: Check if the token role matches HR
         if (req.user!.role !== 'HR') {
             return res.status(403).json({ error: "Access denied. HR privileges required." });
         }
@@ -57,7 +53,6 @@ router.get('/admin/all', authenticateToken, async (req: AuthRequest, res: any) =
     }
 });
 
-// 4. APPROVE OR REJECT LEAVE APPLICATION (HR Only)
 router.patch('/admin/action/:id', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
         if (req.user!.role !== 'HR') {
@@ -65,7 +60,7 @@ router.patch('/admin/action/:id', authenticateToken, async (req: AuthRequest, re
         }
 
         const { id } = req.params;
-        const { status } = req.body; // Expects 'Approved' or 'Rejected'
+        const { status } = req.body;
 
         if (!['Approved', 'Rejected'].includes(status)) {
             return res.status(400).json({ error: "Invalid application action status requested." });

@@ -16,14 +16,13 @@ export const LeaveHistory: React.FC<{ refreshTrigger: number }> = ({ refreshTrig
   const fetchLeaveHistory = useCallback(async () => {
     try {
       const response = await API.get('/api/leave/my-leaves');
-      // Set state safely inside the asynchronous network resolution frame
       setLeaveHistory(response.data?.leaves || []);
     } catch (error) {
       console.error('Failed to pull leave history:', error);
     }
   }, []);
 
-  // Break the static lint compiler link by deferring execution to the next event loop tick
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchLeaveHistory();

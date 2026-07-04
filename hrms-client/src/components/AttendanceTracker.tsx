@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import API from '../api/axiosInstance';
 
 export const AttendanceTracker: React.FC = () => {
@@ -6,23 +6,42 @@ export const AttendanceTracker: React.FC = () => {
   const [isShiftCompleted, setIsShiftCompleted] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ text: string; isError: boolean } | null>(null);
 
+  useEffect(() => {
+    const syncCurrentShiftState = async () => {
+      try {
+        const response = await API.get('/api/attendance/today-status');
+        const { isCheckedIn: serverCheckedIn, isShiftCompleted: serverShiftCompleted } = response.data;
+        
+        setIsCheckedIn(serverCheckedIn);
+        setIsShiftCompleted(serverShiftCompleted);
+        
+        if (serverShiftCompleted) {
+          setStatusMessage({ text: 'Your shift logs for today are already finalized and completed.', isError: false });
+        } else if (serverCheckedIn) {
+          setStatusMessage({ text: 'Your shift for today is currently active.', isError: false });
+        }
+      } catch (error) {
+        console.error('Error syncing shift status:', error);
+      }
+    };
+
+    syncCurrentShiftState();
+  }, []);
+
   const triggerCheckIn = async () => {
     setStatusMessage(null);
     try {
       await API.post('/api/attendance/checkin', {});
       setIsCheckedIn(true);
-      setStatusMessage({ text: 'Shift sequence initialized successfully.', isError: false });
+      setStatusMessage({ text: 'Checked in successfully.', isError: false });
     } catch (error: unknown) {
       const axiosError = error as { response?: { status?: number; data?: { error?: string } } };
       
       if (axiosError.response?.status === 400 && axiosError.response?.data?.error?.includes('already checked in')) {
         setIsCheckedIn(true);
-        setStatusMessage({ text: 'Your shift sequence for today is already active.', isError: false });
+        setStatusMessage({ text: 'Your shift for today is currently active.', isError: false });
       } else {
-        setStatusMessage({ 
-          text: axiosError.response?.data?.error || 'Initialization failure.', 
-          isError: true 
-        });
+        setStatusMessage({ text: axiosError.response?.data?.error || 'Check-in failed.', isError: true });
       }
     }
   };
@@ -33,30 +52,26 @@ export const AttendanceTracker: React.FC = () => {
       await API.post('/api/attendance/checkout', {});
       setIsCheckedIn(false);
       setIsShiftCompleted(true);
-      setStatusMessage({ text: 'Shift sequence terminated. Summary logged.', isError: false });
+      setStatusMessage({ text: 'Checked out successfully.', isError: false });
     } catch (error: unknown) {
       const axiosError = error as { response?: { status?: number; data?: { error?: string } } };
       
-      // Handle the case from image_7711e6.png where user already checked out
       if (axiosError.response?.status === 400 && axiosError.response?.data?.error?.includes('already checked out')) {
         setIsCheckedIn(false);
         setIsShiftCompleted(true);
         setStatusMessage({ text: 'Your shift logs for today are already finalized and completed.', isError: false });
       } else {
-        setStatusMessage({ 
-          text: axiosError.response?.data?.error || 'Termination failure.', 
-          isError: true 
-        });
+        setStatusMessage({ text: axiosError.response?.data?.error || 'Check-out failed.', isError: true });
       }
     }
   };
 
   return (
-    <div className="bg-bg-card border border-zinc-900 rounded-xl p-8 space-y-6 shadow-lg animate-slide-up">
+    <div className="bg-bg-card border border-zinc-900 rounded-xl p-8 space-y-6 shadow-lg">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg tracking-wide text-brand-accent font-medium">ATTENDANCE LOG PIPELINE</h3>
-          <p className="text-xs font-sans text-zinc-500">Record your dynamic standard corporate hours.</p>
+          <h3 className="text-lg font-semibold text-zinc-200">Daily Attendance</h3>
+          <p className="text-xs text-zinc-500">Clock in or out for your shift.</p>
         </div>
         <span className={`px-3 py-1 font-sans text-[10px] font-bold tracking-wider uppercase rounded-full ${
           isShiftCompleted ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' :
@@ -68,7 +83,7 @@ export const AttendanceTracker: React.FC = () => {
       </div>
 
       {statusMessage && (
-        <div className={`p-4 rounded text-xs font-sans font-medium border transition-all duration-300 animate-fade-in ${
+        <div className={`p-4 rounded text-xs font-sans font-medium border transition-all duration-300 ${
           statusMessage.isError ? 'bg-status-danger/5 text-status-danger border-status-danger/20' : 'bg-brand-primary/5 text-brand-accent border-brand-primary/20'
         }`}>
           {statusMessage.text}

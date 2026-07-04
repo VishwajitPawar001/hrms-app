@@ -18,9 +18,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     }
 
     try {
-        // Fallback to a safe string if process.env.JWT_SECRET is undefined to please TypeScript strict checks
         const secretKey = process.env.JWT_SECRET || 'fallback_secret_key';
-        
         const verified = jwt.verify(token, secretKey) as { userId: string; role: 'Employee' | 'HR'; employeeId: string; };
         req.user = verified;
         next();

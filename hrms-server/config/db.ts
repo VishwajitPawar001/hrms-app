@@ -2,16 +2,15 @@ import mongoose from 'mongoose';
 
 export const connectDB = async () => {
     try {
-        // Fetch from process.env and provide a strict type guard fallback string
         const connURI = process.env.LOCAL_MONGO_URI || '';
         
         if (!connURI) {
-            console.error('CRITICAL ERROR: MONGO_URI is missing in the environment configuration.');
+            console.error('Error: MONGO_URI is not defined in the environment variables.');
             process.exit(1);
         }
 
         await mongoose.connect(connURI);
-        console.log('Local MongoDB connected successfully');
+        console.log('MongoDB connected successfully');
     } catch (error) {
         console.error('Database connection failed:', error);
         process.exit(1); 
