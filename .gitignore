@@ -1,0 +1,26 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+web_modules/
+
+# Local configuration files and secrets
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
