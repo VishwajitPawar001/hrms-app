@@ -1,14 +1,19 @@
 import mongoose from 'mongoose';
 
-const LOCAL_MONGO_URI = 'mongodb://localhost:27017/odoo_hrms';
-
 export const connectDB = async () => {
-  try {
-    await mongoose.connect(LOCAL_MONGO_URI);
-    console.log('Local MongoDB connected successfully on port 27017');
-    // 🚨 Ensure there is NO process.exit() line here!
-  } catch (error) {
-    console.error('Database connection failed:', error);
-    process.exit(1); // This should ONLY be in the catch block
-  }
+    try {
+        // Fetch from process.env and provide a strict type guard fallback string
+        const connURI = process.env.LOCAL_MONGO_URI || '';
+        
+        if (!connURI) {
+            console.error('CRITICAL ERROR: MONGO_URI is missing in the environment configuration.');
+            process.exit(1);
+        }
+
+        await mongoose.connect(connURI);
+        console.log('Local MongoDB connected successfully');
+    } catch (error) {
+        console.error('Database connection failed:', error);
+        process.exit(1); 
+    }
 };

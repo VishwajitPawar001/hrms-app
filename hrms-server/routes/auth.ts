@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_hackathon_key';
 
 // SIGN UP ENDPOINT
 router.post('/signup', async (req: any, res: any) => {
@@ -15,7 +14,8 @@ router.post('/signup', async (req: any, res: any) => {
       return res.status(400).json({ error: 'All fields are mandatory.' });
     }
 
-    const existingUser = await User.findOne({ $or: [{ email }, { employeeId }] });
+    // Explicitly cast filter query to bypass strict Mongoose TypeScript checking
+    const existingUser = await User.findOne({ $or: [{ email }, { employeeId }] } as any);
     if (existingUser) {
       return res.status(400).json({ error: 'Employee ID or Email already registered.' });
     }
@@ -34,9 +34,9 @@ router.post('/signup', async (req: any, res: any) => {
     });
 
     await newUser.save();
-    res.status(201).json({ message: 'User registered successfully!' });
+    return res.status(201).json({ message: 'User registered successfully!' });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server registration error.' });
+    return res.status(500).json({ error: 'Internal server registration error.' });
   }
 });
 
@@ -49,7 +49,8 @@ router.post('/signin', async (req: any, res: any) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    const user = await User.findOne({ email });
+    // Explicitly cast filter query to bypass strict checking
+    const user = await User.findOne({ email } as any);
     if (!user) {
       return res.status(400).json({ error: 'Invalid email or password credentials.' });
     }
@@ -59,18 +60,21 @@ router.post('/signin', async (req: any, res: any) => {
       return res.status(400).json({ error: 'Invalid email or password credentials.' });
     }
 
+    // Pull directly from process.env with a strict fallback to ensure safe compilation
+    const secretKey = process.env.JWT_SECRET || 'fallback_secret_key';
+
     const token = jwt.sign(
       { userId: user._id, role: user.role, employeeId: user.employeeId },
-      JWT_SECRET,
+      secretKey,
       { expiresIn: '8h' }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       token,
       user: { id: user._id, employeeId: user.employeeId, name: user.name, role: user.role }
     });
   } catch (error) {
-    res.status(500).json({ error: 'Internal login error.' });
+    return res.status(500).json({ error: 'Internal login error.' });
   }
 });
 
