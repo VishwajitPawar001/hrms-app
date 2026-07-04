@@ -3,8 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
-import attendanceRoutes from './routes/Attendance.js';
+import attendanceRoutes from './routes/attendance.js';
 import leaveRoutes from './routes/leave.js';
+import profileRoutes from './routes/profile.js';
+import payrollRoutes from './routes/payroll.js';
 
 dotenv.config();
 
@@ -19,6 +21,8 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leave', leaveRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/payroll', payrollRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'UP', message: 'HRMS Backend Running Locally.' });

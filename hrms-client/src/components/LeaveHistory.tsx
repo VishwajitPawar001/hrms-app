@@ -10,17 +10,23 @@ interface LeaveRequest {
   status: 'Pending' | 'Approved' | 'Rejected';
 }
 
-export const LeaveHistory: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
+export const LeaveHistory: React.FC<{ refreshTrigger: number; employeeId?: string }> = ({ refreshTrigger, employeeId }) => {
   const [leaveHistory, setLeaveHistory] = useState<LeaveRequest[]>([]);
 
   const fetchLeaveHistory = useCallback(async () => {
     try {
-      const response = await API.get('/api/leave/my-leaves');
-      setLeaveHistory(response.data?.leaves || []);
+      if (employeeId) {
+        const response = await API.get('/api/leave/admin/all');
+        const list: LeaveRequest[] = response.data?.leaves || [];
+        setLeaveHistory(list.filter((item: any) => item.employeeId === employeeId));
+      } else {
+        const response = await API.get('/api/leave/my-leaves');
+        setLeaveHistory(response.data?.leaves || []);
+      }
     } catch (error) {
       console.error('Failed to pull leave history:', error);
     }
-  }, []);
+  }, [employeeId]);
 
 
   useEffect(() => {

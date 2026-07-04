@@ -4,13 +4,11 @@ import { authenticateToken, type AuthRequest } from '../middlewares/authMiddlewa
 
 const router = Router();
 
-// Check-in Endpoint
 router.post('/checkin', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
         const { employeeId } = req.user!;
         const today = new Date().toISOString().split('T')[0];
 
-        // Cast the query object explicitly to bypass strict Mongoose schema typing checks
         const existingRecord = await Attendance.findOne({ employeeId, date: today } as any);
         if (existingRecord) {
             return res.status(400).json({ error: "You have already checked in for today." });
@@ -31,13 +29,11 @@ router.post('/checkin', authenticateToken, async (req: AuthRequest, res: any) =>
     }
 });
 
-// Check-out Endpoint 
 router.post('/checkout', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
         const { employeeId } = req.user!;
         const today = new Date().toISOString().split('T')[0];
 
-        // Cast the query to any, and cast the output document to IAttendance
         const record = await Attendance.findOne({ employeeId, date: today } as any) as IAttendance | null;
         
         if (!record) {
@@ -58,12 +54,9 @@ router.post('/checkout', authenticateToken, async (req: AuthRequest, res: any) =
     }
 });
 
-// Get personal attendance logs timeline history
 router.get('/my-history', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
         const { employeeId } = req.user!;
-        
-        // Fetch all attendance milestones sorted by newest date first
         const history = await Attendance.find({ employeeId } as any).sort({ date: -1 });
         return res.status(200).json({ history });
     } catch (error) {
@@ -71,17 +64,14 @@ router.get('/my-history', authenticateToken, async (req: AuthRequest, res: any) 
     }
 });
 
-// Get master attendance logs for administration tracking
 router.get('/admin/today', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
         const { role } = req.user!;
         
-        // Authorization boundary check
         if (role !== 'HR') {
             return res.status(403).json({ error: "Access denied. Administrative authority required." });
         }
 
-        // Fetch all logs across the team
         const attendance = await Attendance.find({}).sort({ date: -1 });
         return res.status(200).json({ attendance });
     } catch (error) {
@@ -92,7 +82,6 @@ router.get('/admin/today', authenticateToken, async (req: AuthRequest, res: any)
 router.get('/today-status', authenticateToken, async (req: AuthRequest, res: any) => {
     try {
         const { employeeId } = req.user!;
-        
         const latestRecord = await Attendance.findOne({ employeeId } as any).sort({ date: -1 });
 
         if (!latestRecord) {

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import API from '../api/axiosInstance';
 
-export const LeaveForm: React.FC = () => {
+export const LeaveForm: React.FC<{ onLeaveApplied?: () => void }> = ({ onLeaveApplied }) => {
   const [leaveData, setLeaveData] = useState({
     startDate: '',
     endDate: '',
-    leaveType: 'Casual Leave',
+    leaveType: 'Casual',
     durationMode: 'Full',
     reason: ''
   });
@@ -26,9 +26,13 @@ export const LeaveForm: React.FC = () => {
         endDate: leaveData.durationMode === 'Half' ? leaveData.startDate : leaveData.endDate
       };
 
-      await API.post('/api/leave/request', payload);
+      await API.post('/api/leave/apply', payload);
       setMessage({ text: 'Leave request submitted successfully.', isError: false });
-      setLeaveData({ startDate: '', endDate: '', leaveType: 'Casual Leave', durationMode: 'Full', reason: '' });
+      setLeaveData({ startDate: '', endDate: '', leaveType: 'Casual', durationMode: 'Full', reason: '' });
+      
+      if (onLeaveApplied) {
+        onLeaveApplied();
+      }
     } catch (error: any) {
       setMessage({ text: error.response?.data?.error || 'Failed to submit request.', isError: true });
     }
@@ -81,8 +85,8 @@ export const LeaveForm: React.FC = () => {
         <div>
           <label className="block text-zinc-400 mb-2 uppercase tracking-wider font-bold text-[10px]">Type</label>
           <select name="leaveType" value={leaveData.leaveType} onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 rounded p-3 text-zinc-300 focus:border-brand-primary outline-none transition">
-            <option value="Casual Leave">Casual Leave</option>
-            <option value="Medical Leave">Medical Leave</option>
+            <option value="Casual">Casual Leave</option>
+            <option value="Sick">Medical Leave</option>
           </select>
         </div>
       </div>

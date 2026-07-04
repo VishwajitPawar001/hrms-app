@@ -9,17 +9,23 @@ interface AttendanceRecord {
   status: string;
 }
 
-export const AttendanceHistory: React.FC = () => {
+export const AttendanceHistory: React.FC<{ employeeId?: string }> = ({ employeeId }) => {
   const [history, setHistory] = useState<AttendanceRecord[]>([]);
 
   const fetchAttendanceHistory = useCallback(async () => {
     try {
-      const response = await API.get('/api/attendance/my-history');
-      setHistory(response.data?.history || []);
+      if (employeeId) {
+        const response = await API.get('/api/attendance/admin/today');
+        const list: AttendanceRecord[] = response.data?.attendance || response.data || [];
+        setHistory(list.filter((item: any) => item.employeeId === employeeId));
+      } else {
+        const response = await API.get('/api/attendance/my-history');
+        setHistory(response.data?.history || []);
+      }
     } catch (error) {
       console.error('Failed to pull attendance logs:', error);
     }
-  }, []);
+  }, [employeeId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
