@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
+import attendanceRoutes from './routes/Attendance.js';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ connectDB();
 
 // 2. Mount Routers
 app.use('/api/auth', authRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // 3. Health Routes
 app.get('/api/health', (req, res) => {
