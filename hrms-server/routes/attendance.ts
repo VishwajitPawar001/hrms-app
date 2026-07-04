@@ -58,4 +58,35 @@ router.post('/checkout', authenticateToken, async (req: AuthRequest, res: any) =
     }
 });
 
+// Get personal attendance logs timeline history
+router.get('/my-history', authenticateToken, async (req: AuthRequest, res: any) => {
+    try {
+        const { employeeId } = req.user!;
+        
+        // Fetch all attendance milestones sorted by newest date first
+        const history = await Attendance.find({ employeeId } as any).sort({ date: -1 });
+        return res.status(200).json({ history });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error fetching historical shift logs." });
+    }
+});
+
+// Get master attendance logs for administration tracking
+router.get('/admin/today', authenticateToken, async (req: AuthRequest, res: any) => {
+    try {
+        const { role } = req.user!;
+        
+        // Authorization boundary check
+        if (role !== 'HR') {
+            return res.status(403).json({ error: "Access denied. Administrative authority required." });
+        }
+
+        // Fetch all logs across the team
+        const attendance = await Attendance.find({}).sort({ date: -1 });
+        return res.status(200).json({ attendance });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error fetching management dashboard logs." });
+    }
+});
+
 export default router;
