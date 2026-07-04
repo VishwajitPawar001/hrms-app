@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
-import { log } from 'console';
+import authRoutes from './routes/auth.js';
 
 dotenv.config();
 
@@ -12,12 +12,22 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// 1. Core Database Boot up
 connectDB();
 
-app.get('api/health', (req, res) => {
-    res.status(200).json({ status: 'UP', message: 'HRMS Backend Running Locally.' });
-})
+// 2. Mount Routers
+app.use('/api/auth', authRoutes);
 
-app.listen(PORT, ()=> {
-    console.log(`Server booting up at http://localhost:${PORT}`);
-})
+// 3. Health Routes
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'UP', message: 'HRMS Backend Running Locally.' });
+});
+
+app.get('/', (req, res) => {
+  res.send('HRMS Server Engine Running Locally.');
+});
+
+// 4. Stay Alive Listener
+app.listen(PORT, () => {
+  console.log(`Server booting up at http://localhost:${PORT}`);
+});
